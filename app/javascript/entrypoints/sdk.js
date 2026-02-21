@@ -79,6 +79,7 @@ const runSDK = ({ baseUrl, websiteToken }) => {
     enableFileUpload: chatwootSettings.enableFileUpload,
     enableEmojiPicker: chatwootSettings.enableEmojiPicker ?? true,
     enableEndConversation: chatwootSettings.enableEndConversation ?? true,
+    user: chatwootSettings.user || null,
 
     toggle(state) {
       IFrameHelper.events.toggleBubble(state);
@@ -124,6 +125,7 @@ const runSDK = ({ baseUrl, websiteToken }) => {
       const existingCookieValue = Cookies.get(userCookieName);
       const hashToBeStored = computeHashForUserData({ identifier, user });
       if (hashToBeStored === existingCookieValue) {
+        console.log('User is already set with the same data, skipping setUser');
         return;
       }
 

@@ -14,7 +14,7 @@
 <script>
 
 window.chatwootSettings = {
-  hideMessageBubble: false,
+  hideMessageBubble: true,
   // showUnreadMessagesDialog: false,
   // baseDomain: '.loca.lt',
   position: '<%= @widget_position %>',
@@ -24,6 +24,15 @@ window.chatwootSettings = {
   // showPopoutButton: true,
   widgetStyle: '<%= @widget_style %>',
   darkMode: '<%= @dark_mode %>',
+  user: {
+    identifier: '<%= user_id %>',
+    user: {
+      identifier_hash: '<%= user_hash %>',
+      email: 'jane@example.com',
+      name: 'Jane Doe',
+      phone_number: ''
+    }
+  }
 };
 
 (function(d,t) {
@@ -40,16 +49,8 @@ window.chatwootSettings = {
   }
 })(document,"script");
 
-window.addEventListener('chatwoot:ready', function() {
+window.addEventListener('chatwoot:ready', async function() {
   console.log('chatwoot:ready', window.$chatwoot);
-  if (window.location.search.includes('setUser')) {
-    window.$chatwoot.setUser('<%= user_id %>', {
-      identifier_hash: '<%= user_hash %>',
-      email: 'jane@example.com',
-      name: 'Jane Doe',
-      phone_number: ''
-    });
-  }
 })
 
 window.addEventListener('chatwoot:error', function(e) {
@@ -75,5 +76,9 @@ window.addEventListener('chatwoot:closed', function() {
 
 window.addEventListener('chatwoot:on-start-conversation', function(e) {
   console.log('chatwoot:on-start-conversation', e.detail)
+})
+
+window.addEventListener('chatwoot:user-identified', function(e) {
+  console.log('chatwoot:user-identified', e)
 })
 </script>

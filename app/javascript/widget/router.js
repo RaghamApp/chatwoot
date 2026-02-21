@@ -22,7 +22,7 @@ const router = createRouter({
         {
           path: '',
           name: 'home',
-          component: () => import('./views/Home.vue'),
+          component: () => import('./views/Messages.vue'),
         },
         {
           path: '/prechat-form',

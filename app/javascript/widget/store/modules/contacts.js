@@ -30,6 +30,10 @@ export const actions = {
     try {
       const { data } = await ContactsAPI.get();
       commit(SET_CURRENT_USER, data);
+      sendMessage({
+        event: 'setCurrentUser',
+        data,
+      });
     } catch (error) {
       // Ignore error
     }

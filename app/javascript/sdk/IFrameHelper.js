@@ -26,6 +26,7 @@ import {
   CHATWOOT_ERROR,
   CHATWOOT_POSTBACK,
   CHATWOOT_READY,
+  CHATWOOT_USER_IDENTIFIED,
 } from '../widget/constants/sdkEvents';
 import { SET_USER_ERROR } from '../widget/constants/errorTypes';
 import { getUserCookieName, setCookieWithDomain } from './cookieHelpers';
@@ -199,6 +200,9 @@ export const IFrameHelper = {
       if (errorType === SET_USER_ERROR) {
         Cookies.remove(getUserCookieName());
       }
+    },
+    setCurrentUser({ data }) {
+      dispatchWindowEvent({ eventName: CHATWOOT_USER_IDENTIFIED, data });
     },
     onEvent({ eventIdentifier: eventName, data }) {
       dispatchWindowEvent({ eventName, data });
