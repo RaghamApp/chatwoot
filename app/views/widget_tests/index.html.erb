@@ -81,4 +81,8 @@ window.addEventListener('chatwoot:on-start-conversation', function(e) {
 window.addEventListener('chatwoot:user-identified', function(e) {
   console.log('chatwoot:user-identified', e)
 })
+
+window.addEventListener('chatwoot:on-notification-dot-changed', function(d) {
+  console.log('chatwoot:on-notification-dot-changed', d.detail)
+})
 </script>

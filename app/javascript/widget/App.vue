@@ -221,10 +221,10 @@ export default {
         unreadMessageCount > 0 &&
         !this.isWidgetOpen
       ) {
-        this.router.replace({ name: 'unread-messages' }).then(() => {
-          this.setIframeHeight(true);
-          IFrameHelper.sendMessage({ event: 'setUnreadMode' });
-        });
+        // this.router.replace({ name: 'unread-messages' }).then(() => {
+        //   this.setIframeHeight(true);
+        //   IFrameHelper.sendMessage({ event: 'setUnreadMode' });
+        // });
         this.handleUnreadNotificationDot();
       }
     },
@@ -319,22 +319,7 @@ export default {
         } else if (message.event === 'toggle-open') {
           this.$store.dispatch('appConfig/toggleWidgetOpen', message.isOpen);
 
-          const shouldShowMessageView =
-            ['home'].includes(this.$route.name) &&
-            message.isOpen &&
-            this.messageCount;
-          const shouldShowHomeView =
-            !message.isOpen &&
-            ['unread-messages', 'campaigns'].includes(this.$route.name);
-
-          if (shouldShowMessageView) {
-            this.router.replace({ name: 'messages' });
-          }
-          if (shouldShowHomeView) {
-            this.$store.dispatch('conversation/setUserLastSeen');
-            this.unsetUnreadView();
-            this.router.replace({ name: 'home' });
-          }
+          this.router.replace({ name: 'messages' });
           if (!message.isOpen) {
             this.resetCampaign();
           }

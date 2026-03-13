@@ -6,3 +6,5 @@ export const CHATWOOT_READY = 'chatwoot:ready';
 export const CHATWOOT_OPENED = 'chatwoot:opened';
 export const CHATWOOT_CLOSED = 'chatwoot:closed';
 export const CHATWOOT_USER_IDENTIFIED = 'chatwoot:user-identified';
+export const CHATWOOT_ON_NOTIFICATION_DOT_CHANGED =
+  'chatwoot:on-notification-dot-changed';

@@ -27,6 +27,7 @@ import {
   CHATWOOT_POSTBACK,
   CHATWOOT_READY,
   CHATWOOT_USER_IDENTIFIED,
+  CHATWOOT_ON_NOTIFICATION_DOT_CHANGED,
 } from '../widget/constants/sdkEvents';
 import { SET_USER_ERROR } from '../widget/constants/errorTypes';
 import { getUserCookieName, setCookieWithDomain } from './cookieHelpers';
@@ -273,6 +274,10 @@ export const IFrameHelper = {
 
     resetUnreadMode: () => removeUnreadClass(),
     handleNotificationDot: event => {
+      dispatchWindowEvent({
+        eventName: CHATWOOT_ON_NOTIFICATION_DOT_CHANGED,
+        data: event,
+      });
       if (window.$chatwoot.hideMessageBubble) {
         return;
       }
