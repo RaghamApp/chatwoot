@@ -20,7 +20,7 @@ export default {
       showPopoutButton: false,
       scrollPosition: 0,
       ticking: true,
-      disableBranding: window.chatwootWebChannel.disableBranding || false,
+      disableBranding: true,
       requestID: null,
     };
   },
@@ -103,11 +103,11 @@ export default {
 
 <template>
   <div
-    class="w-full h-full bg-n-slate-2 dark:bg-n-solid-1"
+    class="w-full h-full min-h-0 bg-n-slate-2 dark:bg-n-solid-1"
     :class="{ 'overflow-auto': isOnHomeView }"
     @keydown.esc="closeWindow"
   >
-    <div class="relative flex flex-col h-full">
+    <div class="relative flex flex-col h-full min-h-0">
       <div
         :class="{
           expanded: !isHeaderCollapsed,
@@ -136,7 +136,7 @@ export default {
         />
       </div>
       <Banner />
-      <router-view />
+      <router-view class="min-h-0" />
 
       <Branding v-if="!isOnArticleViewer" :disable-branding="disableBranding" />
     </div>

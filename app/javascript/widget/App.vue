@@ -40,6 +40,7 @@ export default {
     return {
       isMobile: false,
       campaignsSnoozedTill: undefined,
+      touchStartY: 0,
     };
   },
   computed: {
@@ -79,6 +80,7 @@ export default {
     },
   },
   mounted() {
+    this.registerViewportHandlers();
     const { websiteToken, locale, widgetColor } = window.chatwootWebChannel;
     this.setLocale(locale);
     this.setWidgetColor(widgetColor);
@@ -100,6 +102,9 @@ export default {
     this.registerUnreadEvents();
     this.registerCampaignEvents();
   },
+  unmounted() {
+    this.unregisterViewportHandlers();
+  },
   methods: {
     ...mapActions('appConfig', [
       'setAppConfig',
@@ -115,6 +120,54 @@ export default {
       'resetCampaign',
     ]),
     ...mapActions('agent', ['fetchAvailableAgents']),
+    registerViewportHandlers() {
+      this.syncViewportBounds();
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', this.syncViewportBounds);
+        window.visualViewport.addEventListener('scroll', this.syncViewportBounds);
+      } else {
+        window.addEventListener('resize', this.syncViewportBounds);
+      }
+
+      document.addEventListener('touchstart', this.handleTouchStart, {
+        passive: true,
+      });
+      document.addEventListener('touchmove', this.handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener('focusin', this.handleFocusIn);
+    },
+    unregisterViewportHandlers() {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener(
+          'resize',
+          this.syncViewportBounds
+        );
+        window.visualViewport.removeEventListener(
+          'scroll',
+          this.syncViewportBounds
+        );
+      } else {
+        window.removeEventListener('resize', this.syncViewportBounds);
+      }
+
+      document.removeEventListener('touchstart', this.handleTouchStart);
+      document.removeEventListener('touchmove', this.handleTouchMove);
+      document.removeEventListener('focusin', this.handleFocusIn);
+    },
+    syncViewportBounds() {
+      const viewport = window.visualViewport;
+      const height = viewport ? viewport.height : window.innerHeight;
+      const width = viewport ? viewport.width : window.innerWidth;
+      const offsetTop = viewport ? viewport.offsetTop : 0;
+      const offsetLeft = viewport ? viewport.offsetLeft : 0;
+
+      document.documentElement.style.setProperty('--widget-app-height', `${height}px`);
+      document.documentElement.style.setProperty('--widget-app-width', `${width}px`);
+      document.documentElement.style.setProperty('--widget-app-offset-top', `${offsetTop}px`);
+      document.documentElement.style.setProperty('--widget-app-offset-left', `${offsetLeft}px`);
+    },
     setWidgetColorVariable(widgetColor) {
       if (widgetColor) {
         document.documentElement.style.setProperty(
@@ -126,6 +179,67 @@ export default {
     scrollConversationToBottom() {
       const container = this.$el.querySelector('.conversation-wrap');
       container.scrollTop = container.scrollHeight;
+    },
+    getScrollableParent(element) {
+      if (!(element instanceof Element)) {
+        return null;
+      }
+
+      let currentElement = element;
+
+      while (currentElement && currentElement !== document.body) {
+        const { overflowY } = window.getComputedStyle(currentElement);
+        const isScrollable = ['auto', 'scroll', 'overlay'].includes(overflowY);
+
+        if (isScrollable && currentElement.scrollHeight > currentElement.clientHeight) {
+          return currentElement;
+        }
+
+        currentElement = currentElement.parentElement;
+      }
+
+      return null;
+    },
+    canScrollWithin(element, deltaY) {
+      if (!element) {
+        return false;
+      }
+
+      const isSwipingUp = deltaY > 0;
+      const isSwipingDown = deltaY < 0;
+      const atTop = element.scrollTop <= 0;
+      const atBottom =
+        element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+
+      if (isSwipingUp && atBottom) {
+        return false;
+      }
+
+      if (isSwipingDown && atTop) {
+        return false;
+      }
+
+      return true;
+    },
+    handleTouchStart(event) {
+      this.touchStartY = event.touches[0]?.clientY ?? 0;
+    },
+    handleTouchMove(event) {
+      const currentY = event.touches[0]?.clientY ?? this.touchStartY;
+      const deltaY = this.touchStartY - currentY;
+      const scrollParent = this.getScrollableParent(event.target);
+
+      if (!this.canScrollWithin(scrollParent, deltaY)) {
+        event.preventDefault();
+      }
+    },
+    handleFocusIn(event) {
+      if (
+        event.target instanceof Element &&
+        event.target.matches('input, textarea')
+      ) {
+        event.target.scrollIntoView({ block: 'nearest' });
+      }
     },
     setBubbleLabel() {
       IFrameHelper.sendMessage({
@@ -353,6 +467,7 @@ export default {
   </div>
   <div
     v-else
+    ref="appRoot"
     class="flex flex-col justify-end h-full"
     :class="{
       'is-mobile': isMobile,
